@@ -40,12 +40,18 @@ public class RatingSystemApp extends Application {
             logger.info("Application started");
         } catch (Exception e) {
             logger.error("Failed to start application", e);
+            
+            // Извлекаем самое глубокое сообщение об ошибке
+            Throwable cause = e;
+            while (cause.getCause() != null) cause = cause.getCause();
+            
             showErrorAndExit("Ошибка инициализации", 
                 "Не удалось подключиться к базе данных.\n\n" +
-                "Убедитесь, что:\n" +
-                "1. База данных запущена (docker-compose up)\n" +
-                "2. Установлена переменная окружения DB_PASSWORD\n\n" +
-                "Детали: " + e.getMessage());
+                "Возможные причины:\n" +
+                "1. База данных не запущена (выполните 'docker-compose up -d')\n" +
+                "2. Неверный пароль (проверьте DB_PASSWORD или application.properties)\n" +
+                "3. Порт 54331 занят другим приложением\n\n" +
+                "Техническая информация:\n" + cause.getMessage());
         }
     }
 

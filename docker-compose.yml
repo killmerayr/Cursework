@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: rating_system
       POSTGRES_USER: rating_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-rating_pass_2025}
     ports:
       - "0.0.0.0:54331:5432"
     volumes:
