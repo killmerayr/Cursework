@@ -132,7 +132,7 @@ public class DatabaseManager {
         String password = System.getenv("DB_PASSWORD");
         if (password == null || password.trim().isEmpty()) {
             password = config.getProperty("db.postgresql.password", "postgres");
-        }
+        } else {
             logger.info("Using DB_PASSWORD from environment variable");
         }
         
