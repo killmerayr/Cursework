@@ -21,8 +21,8 @@
                     <MenuItem text="Редактировать группу" />
                 </Menu>
             </MenuBar>
-            <HBox spacing="10.0" style="-fx-padding: 10px;">
-                <Label fx:id="userLabel" text="Пользователь:" style="-fx-font-weight: bold" />
+            <HBox spacing="10.0" style="-fx-padding: 10px; -fx-background-color: -surface-light;">
+                <Label fx:id="userLabel" text="Пользователь:" style="-fx-font-weight: 800; -fx-text-fill: -primary-color; -fx-font-size: 14px;" />
             </HBox>
         </VBox>
     </top>
@@ -33,10 +33,10 @@
                 <VBox spacing="10.0" style="-fx-padding: 10px;">
                     <Label text="Управление группами:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
                     <HBox spacing="10.0" prefHeight="40.0">
-                        <Button fx:id="createGroupBtn" text="➕ Создать группу" onAction="#handleCreateGroup" style="-fx-min-width: 150;" />
-                        <Button fx:id="deleteGroupBtn" text="🗑️ Удалить группу" onAction="#handleDeleteGroup" style="-fx-min-width: 150;" />
-                        <Button text="📄 Сводка (PDF)" onAction="#handleExportToPDF" style="-fx-min-width: 150;" />
-                        <Button text="📊 Полный отчёт (PDF)" onAction="#handleExportFullReport" style="-fx-min-width: 150;" />
+                        <Button fx:id="createGroupBtn" text="➕ Создать группу" onAction="#handleCreateGroup" styleClass="button-primary" style="-fx-min-width: 150;" />
+                        <Button fx:id="deleteGroupBtn" text="🗑️ Удалить группу" onAction="#handleDeleteGroup" styleClass="button-danger" style="-fx-min-width: 150;" />
+                        <Button text="📄 Сводка (PDF)" onAction="#handleExportToPDF" styleClass="button-secondary" style="-fx-min-width: 150;" />
+                        <Button text="📊 Полный отчёт (PDF)" onAction="#handleExportFullReport" styleClass="button-secondary" style="-fx-min-width: 150;" />
                     </HBox>
                     <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-fit-to-width: true;">
                         <TableView fx:id="groupsTable" prefHeight="400.0" VBox.vgrow="ALWAYS">
@@ -55,9 +55,9 @@
                 <VBox spacing="10.0" style="-fx-padding: 10px;">
                     <!-- Кнопки действий -->
                     <HBox spacing="10.0">
-                        <Button fx:id="addDisciplineBtn" text="➕ Добавить дисциплину" onAction="#handleAddDiscipline" style="-fx-min-width: 160;" />
-                        <Button fx:id="editDisciplineBtn" text="✏️ Переименовать" onAction="#handleEditDiscipline" style="-fx-min-width: 160;" />
-                        <Button fx:id="deleteDisciplineBtn" text="➖ Удалить дисциплину" onAction="#handleDeleteDiscipline" style="-fx-min-width: 160;" />
+                        <Button fx:id="addDisciplineBtn" text="➕ Добавить дисциплину" onAction="#handleAddDiscipline" styleClass="button-primary" style="-fx-min-width: 160;" />
+                        <Button fx:id="editDisciplineBtn" text="✏️ Переименовать" onAction="#handleEditDiscipline" styleClass="button-secondary" style="-fx-min-width: 160;" />
+                        <Button fx:id="deleteDisciplineBtn" text="➖ Удалить дисциплину" onAction="#handleDeleteDiscipline" styleClass="button-danger" style="-fx-min-width: 160;" />
                         <Separator orientation="VERTICAL" />
                     </HBox>
                     
@@ -79,9 +79,9 @@
                         <VBox spacing="8.0" VBox.vgrow="ALWAYS" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
                             <Label text="Рейтинги студентов:" style="-fx-font-weight: bold; -fx-font-size: 12px;" />
                             <HBox spacing="8.0" prefHeight="35.0">
-                                <Button fx:id="addRatingBtn" text="➕ Добавить" onAction="#handleAddRating" style="-fx-min-width: 100;" />
-                                <Button fx:id="editRatingBtn" text="✏️ Редактировать" onAction="#handleEditRating" style="-fx-min-width: 120;" />
-                                <Button fx:id="deleteRatingBtn" text="➖ Удалить" onAction="#handleDeleteRating" style="-fx-min-width: 100;" />
+                                <Button fx:id="addRatingBtn" text="➕ Добавить" onAction="#handleAddRating" styleClass="button-primary" style="-fx-min-width: 100;" />
+                                <Button fx:id="editRatingBtn" text="✏️ Редактировать" onAction="#handleEditRating" styleClass="button-secondary" style="-fx-min-width: 120;" />
+                                <Button fx:id="deleteRatingBtn" text="➖ Удалить" onAction="#handleDeleteRating" styleClass="button-danger" style="-fx-min-width: 100;" />
                             </HBox>
                             <ScrollPane fitToWidth="true" fitToHeight="true">
                                 <TableView fx:id="ratingsTable" prefHeight="400.0" VBox.vgrow="ALWAYS" style="-fx-font-size: 11px;">
@@ -106,8 +106,8 @@
                 <VBox spacing="10.0" style="-fx-padding: 10px;">
                     <Label text="Список пользователей системы:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
                     <HBox spacing="10.0">
-                        <Button fx:id="deleteUserBtn" text="🗑️ Удалить пользователя" onAction="#handleDeleteUser" style="-fx-min-width: 180;" />
-                        <Button text="🔄 Обновить список" onAction="#loadUsers" style="-fx-min-width: 150;" />
+                        <Button fx:id="deleteUserBtn" text="🗑️ Удалить пользователя" onAction="#handleDeleteUser" styleClass="button-danger" style="-fx-min-width: 180;" />
+                        <Button text="🔄 Обновить список" onAction="#loadUsers" styleClass="button-secondary" style="-fx-min-width: 150;" />
                     </HBox>
                     <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
                         <columns>
@@ -122,8 +122,8 @@
             
             <Tab text="О программе">
                 <VBox spacing="20.0" style="-fx-padding: 30px; -fx-alignment: TOP_CENTER;">
-                    <Label text="Rating System" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;" />
-                    <Label text="Система управления рейтингами аттестации" style="-fx-font-size: 14px;" />
+                    <Label text="Rating System" style="-fx-font-size: 32px; -fx-font-weight: 900; -fx-text-fill: -primary-color;" />
+                    <Label text="Система управления рейтингами аттестации" style="-fx-font-size: 16px; -fx-font-weight: 700;" />
                     <Separator />
                     
                     <VBox spacing="10.0">
@@ -148,7 +148,7 @@
                     </VBox>
                     
                     <Separator />
-                    <Button text="Выход в меню входа" onAction="#handleBackToLogin" style="-fx-min-width: 200; -fx-padding: 12px;" />
+                    <Button text="Выход в меню входа" onAction="#handleBackToLogin" styleClass="button-secondary" style="-fx-min-width: 200; -fx-padding: 12px;" />
                 </VBox>
             </Tab>
         </TabPane>

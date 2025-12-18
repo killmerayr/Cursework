@@ -31,7 +31,7 @@
             <PasswordField fx:id="confirmPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             
             <Label text="Роль:" style="-fx-font-weight: bold" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <ComboBox fx:id="roleComboBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <ComboBox fx:id="roleComboBox" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         </GridPane>
         
         <Label fx:id="messageLabel" text="" textFill="#d32f2f">
@@ -40,9 +40,9 @@
             </font>
         </Label>
         
-        <VBox spacing="10.0">
-            <Button onAction="#handleRegister" prefWidth="150.0" text="Зарегистрировать" />
-            <Button onAction="#handleCancel" prefWidth="150.0" text="Отмена" />
+        <VBox spacing="10.0" alignment="CENTER">
+            <Button onAction="#handleRegister" prefWidth="150.0" styleClass="button-primary" text="Зарегистрировать" />
+            <Button onAction="#handleCancel" prefWidth="150.0" styleClass="button-secondary" text="Отмена" />
         </VBox>
     </VBox>
 </AnchorPane>

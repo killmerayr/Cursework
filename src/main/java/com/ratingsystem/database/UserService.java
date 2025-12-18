@@ -99,36 +99,6 @@ public class UserService {
     }
 
     /**
-     * Получить всех пользователей
-     */
-    public List<User> getAllUsers() {
-        List<User> users = new ArrayList<>();
-        try {
-            ResultSet rs = db.executeQuery("SELECT id, username, role FROM users ORDER BY username");
-            while (rs.next()) {
-                User user = new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        "", // Пароль не нужен для списка
-                        User.UserRole.fromString(rs.getString("role"))
-                );
-                users.add(user);
-            }
-        } catch (Exception e) {
-            logger.error("Error getting all users", e);
-        }
-        return users;
-    }
-
-    /**
-     * Удалить пользователя
-     */
-    public void deleteUser(int id) throws Exception {
-        db.executeUpdate("DELETE FROM users WHERE id = ?", id);
-        logger.info("User deleted: ID {}", id);
-    }
-
-    /**
      * Создать нового пользователя
      */
     public void createUser(String username, String password, User.UserRole role) throws Exception {
@@ -156,7 +126,7 @@ public class UserService {
     }
 
     /**
-     * Получить все пользователей
+     * Получить всех пользователей
      */
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
@@ -182,15 +152,9 @@ public class UserService {
     /**
      * Удалить пользователя
      */
-    public int deleteUser(int userId) {
-        try {
-            int result = db.executeUpdate("DELETE FROM users WHERE id = ?", userId);
-            logger.info("User deleted: {}", userId);
-            return result;
-        } catch (Exception e) {
-            logger.error("Error deleting user", e);
-            return 0;
-        }
+    public void deleteUser(int userId) throws Exception {
+        db.executeUpdate("DELETE FROM users WHERE id = ?", userId);
+        logger.info("User deleted: {}", userId);
     }
 
     /**

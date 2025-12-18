@@ -122,6 +122,7 @@ public class MainController {
     private User currentUser;
     private ObservableList<Group> groupsList = FXCollections.observableArrayList();
     private DatabaseManager db;
+    private com.ratingsystem.database.GroupService groupService;
     private com.ratingsystem.database.DisciplineService disciplineService;
     private com.ratingsystem.database.RatingService ratingService;
     private com.ratingsystem.database.UserService userService;
@@ -131,6 +132,7 @@ public class MainController {
         try {
             logger.info("Initializing MainController");
             db = DatabaseManager.getInstance();
+            groupService = new GroupService();
             disciplineService = new DisciplineService();
             ratingService = new RatingService();
             userService = new com.ratingsystem.database.UserService();
@@ -253,6 +255,26 @@ public class MainController {
         }
     }
 
+    /**
+     * Применить стили к диалогу
+     */
+    private void styleDialog(Dialog<?> dialog) {
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        dialogPane.getStyleClass().add("dialog-pane");
+        
+        // Стилизация кнопок в диалоге
+        Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.getStyleClass().add("button-primary");
+        }
+        
+        Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
+        if (cancelButton != null) {
+            cancelButton.getStyleClass().add("button-secondary");
+        }
+    }
+
     @FXML
     private void handleCreateGroup() {
         if (!canModifyData()) {
@@ -262,6 +284,7 @@ public class MainController {
 
         Dialog<Group> dialog = new Dialog<>();
         dialog.setTitle("Добавить новую группу");
+        styleDialog(dialog);
 
         // Создать форму
         GridPane grid = new GridPane();
@@ -321,7 +344,6 @@ public class MainController {
         Optional<Group> result = dialog.showAndWait();
         result.ifPresent(group -> {
             try {
-                com.ratingsystem.database.GroupService groupService = new com.ratingsystem.database.GroupService();
                 groupService.createGroup(group);
                 loadGroups();
                 showInfo("Группа \"" + group.getGroupCode() + "\" успешно создана");
@@ -352,6 +374,7 @@ public class MainController {
         }
 
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        styleDialog(confirmDialog);
         confirmDialog.setTitle("Подтверждение удаления");
         confirmDialog.setHeaderText("Удалить группу?");
         confirmDialog.setContentText("Вы уверены, что хотите удалить группу \"" + selectedGroup.getGroupCode() + "\"?\nВсе связанные данные также будут удалены.");
@@ -359,7 +382,6 @@ public class MainController {
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                com.ratingsystem.database.GroupService groupService = new com.ratingsystem.database.GroupService();
                 groupService.deleteGroupById(selectedGroup.getId());
                 
                 loadGroups();
@@ -395,7 +417,6 @@ public class MainController {
             java.io.File file = fileChooser.showSaveDialog(stage);
             
             if (file != null) {
-                RatingService ratingService = new RatingService();
                 Map<String, Double> summary = ratingService.getSummaryByGroup(selectedGroup.getId());
                 
                 PDFExporter.exportSummaryToPDF(file.getAbsolutePath(), selectedGroup.getGroupCode(), summary);
@@ -517,6 +538,7 @@ public class MainController {
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleDialog(confirm);
         confirm.setTitle("Подтверждение");
         confirm.setContentText("Удалить пользователя \"" + selectedUser.getUsername() + "\"?");
 
@@ -592,6 +614,7 @@ public class MainController {
         }
 
         Dialog<String> dialog = new Dialog<>();
+        styleDialog(dialog);
         dialog.setTitle("Добавить дисциплину");
 
         GridPane grid = new GridPane();
@@ -660,6 +683,7 @@ public class MainController {
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleDialog(confirm);
         confirm.setTitle("Подтверждение");
         confirm.setContentText("Удалить дисциплину \"" + selectedDiscipline.getDisciplineCode() + "\"?");
 
@@ -695,6 +719,7 @@ public class MainController {
         }
 
         TextInputDialog dialog = new TextInputDialog(selectedDiscipline.getDisciplineCode());
+        styleDialog(dialog);
         dialog.setTitle("Редактировать дисциплину");
         dialog.setHeaderText("Изменение названия дисциплины");
         dialog.setContentText("Новое название:");
@@ -745,6 +770,7 @@ public class MainController {
         }
 
         Dialog<Rating> dialog = new Dialog<>();
+        styleDialog(dialog);
         dialog.setTitle("Добавить рейтинг студента");
 
         GridPane grid = new GridPane();
@@ -863,6 +889,7 @@ public class MainController {
         Discipline selectedDiscipline = disciplineListView.getSelectionModel().getSelectedItem();
 
         Dialog<Rating> dialog = new Dialog<>();
+        styleDialog(dialog);
         dialog.setTitle("Редактировать рейтинг");
         dialog.setHeaderText("Редактирование данных студента №" + selectedRating.getStudentNumber());
 
@@ -941,6 +968,7 @@ public class MainController {
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleDialog(confirm);
         confirm.setTitle("Подтверждение");
         confirm.setContentText("Удалить рейтинг студента № " + selectedRating.getStudentNumber() + "?");
 
@@ -975,6 +1003,7 @@ public class MainController {
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+        styleDialog(alert);
         alert.setTitle("Ошибка");
         alert.setContentText(message);
         alert.showAndWait();
@@ -982,6 +1011,7 @@ public class MainController {
 
     private void showInfo(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        styleDialog(alert);
         alert.setTitle("Информация");
         alert.setContentText(message);
         alert.showAndWait();
@@ -993,6 +1023,7 @@ public class MainController {
     @FXML
     private void handleBackToLogin() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleDialog(confirm);
         confirm.setTitle("Выход");
         confirm.setHeaderText("Вы уверены?");
         confirm.setContentText("Вы действительно хотите выйти из приложения?");
@@ -1025,6 +1056,7 @@ public class MainController {
     @FXML
     private void handleExit() {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleDialog(confirm);
         confirm.setTitle("Завершение");
         confirm.setHeaderText("Завершить приложение?");
         confirm.setContentText("Вы уверены, что хотите завершить приложение?");
