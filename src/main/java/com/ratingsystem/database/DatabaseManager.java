@@ -40,16 +40,14 @@ public class DatabaseManager {
 
     /**
      * Загрузить конфигурацию из application.properties
-     * Сначала пробует системную папку (только для админа), потом JAR
+     * Сначала пробует системную папку, затем текущую директорию, затем JAR
      */
     private Properties loadConfiguration() {
         Properties props = new Properties();
         
-        // Определить путь к системной папке
+        // 1. Системная папка (/etc/rating-system или C:\ProgramData\RatingSystem)
         String systemPath = getSystemConfigPath();
         File systemConfigFile = new File(systemPath);
-        
-        // Попытка 1: Читать из системной папки (/etc/rating-system или C:\ProgramData\RatingSystem)
         if (systemConfigFile.exists()) {
             try (InputStream input = new FileInputStream(systemConfigFile)) {
                 props.load(input);
@@ -57,23 +55,33 @@ public class DatabaseManager {
                 return props;
             } catch (IOException e) {
                 logger.error("Failed to read configuration from system path: {}", systemPath, e);
-                throw new RuntimeException("Cannot access database configuration at: " + systemPath, e);
+            }
+        }
+
+        // 2. Текущая директория (рядом с JAR)
+        File localConfigFile = new File("application.properties");
+        if (localConfigFile.exists()) {
+            try (InputStream input = new FileInputStream(localConfigFile)) {
+                props.load(input);
+                logger.info("Configuration loaded from local directory: {}", localConfigFile.getAbsolutePath());
+                return props;
+            } catch (IOException e) {
+                logger.error("Failed to read configuration from local directory", e);
             }
         }
         
-        // Попытка 2: Читать из JAR (только для development)
+        // 3. Внутри JAR (development mode)
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
-            if (input == null) {
-                logger.error("Configuration not found in system path: {} and not found in JAR", systemPath);
-                throw new RuntimeException("Database configuration not found! Please create config at: " + systemPath);
+            if (input != null) {
+                props.load(input);
+                logger.warn("Configuration loaded from JAR (development mode).");
+                return props;
             }
-            props.load(input);
-            logger.warn("Configuration loaded from JAR (development mode). For production, use: {}", systemPath);
-            return props;
         } catch (IOException e) {
             logger.error("Error loading configuration from JAR", e);
-            throw new RuntimeException("Failed to load configuration", e);
         }
+
+        throw new RuntimeException("Database configuration not found! Please create application.properties at: " + systemPath + " or in the current directory.");
     }
     
     /**
