@@ -147,7 +147,8 @@ public class DatabaseManager {
             password = ""; 
         }
         
-        dbUrl = String.format("jdbc:postgresql://%s:%s/%s?sslmode=disable", host, port, database);
+        // Добавляем таймаут подключения (10 секунд), чтобы приложение не зависало при отсутствии сети
+        dbUrl = String.format("jdbc:postgresql://%s:%s/%s?sslmode=disable&connectTimeout=10", host, port, database);
         
         try {
             Class.forName("org.postgresql.Driver");
