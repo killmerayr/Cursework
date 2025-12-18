@@ -235,9 +235,10 @@ public class MainController {
 
         TextField groupCodeField = new TextField();
         groupCodeField.setPromptText("Код группы");
-        Spinner<Integer> studentCountSpinner = new Spinner<>(1, 300, 30);
+        // Расширяем диапазоны, чтобы избежать авто-коррекции (clamping)
+        Spinner<Integer> studentCountSpinner = new Spinner<>(-999999, 999999, 30);
         studentCountSpinner.setEditable(true);
-        Spinner<Integer> disciplineCountSpinner = new Spinner<>(1, 8, 3);
+        Spinner<Integer> disciplineCountSpinner = new Spinner<>(-999999, 999999, 3);
         disciplineCountSpinner.setEditable(true);
 
         grid.add(new Label("Код группы:"), 0, 0);
@@ -649,16 +650,16 @@ public class MainController {
         grid.setHgap(10);
         grid.setVgap(10);
 
-        // Номер студента
-        Spinner<Integer> studentNumSpinner = new Spinner<>(1, selectedGroup.getStudentCount(), 1);
+        // Номер студента - расширяем диапазон, чтобы избежать авто-коррекции (clamping)
+        Spinner<Integer> studentNumSpinner = new Spinner<>(-999999, 999999, 1);
         studentNumSpinner.setEditable(true);
         
         // ФИО студента
         TextField studentNameField = new TextField();
         studentNameField.setPromptText("Введите ФИО студента");
         
-        // Рейтинг
-        Spinner<Double> ratingSpinner = new Spinner<>(0.0, 100.0, 50.0, 0.5);
+        // Рейтинг - расширяем диапазон, чтобы избежать авто-коррекции (clamping)
+        Spinner<Double> ratingSpinner = new Spinner<>(-999999.0, 999999.0, 50.0, 0.5);
         ratingSpinner.setEditable(true);
         
         grid.add(new Label("Номер студента:"), 0, 0);
@@ -771,7 +772,8 @@ public class MainController {
         TextField nameField = new TextField(selectedRating.getStudentName());
         nameField.setPromptText("ФИО студента");
 
-        Spinner<Double> ratingSpinner = new Spinner<>(0.0, 100.0, selectedRating.getRating(), 0.5);
+        // Рейтинг - расширяем диапазон, чтобы избежать авто-коррекции (clamping)
+        Spinner<Double> ratingSpinner = new Spinner<>(-999999.0, 999999.0, selectedRating.getRating(), 0.5);
         ratingSpinner.setEditable(true);
 
         grid.add(new Label("ФИО студента:"), 0, 0);
