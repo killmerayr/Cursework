@@ -14,23 +14,19 @@
 <AnchorPane prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ratingsystem.ui.RegisterController" stylesheets="@styles.css">
     <VBox spacing="15.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="30.0">
         
-        <Label text="Регистрация новой учетной записи">
-            <font>
-                <Font size="18.0" />
-            </font>
-        </Label>
+        <Label text="Регистрация новой учетной записи" styleClass="subtitle-label" />
         
         <GridPane hgap="10.0" vgap="10.0">
-            <Label text="Имя пользователя:" style="-fx-font-weight: bold" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <Label text="Имя пользователя:" styleClass="section-header" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <TextField fx:id="usernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
             
-            <Label text="Пароль:" style="-fx-font-weight: bold" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Label text="Пароль:" styleClass="section-header" GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             
-            <Label text="Повторите пароль:" style="-fx-font-weight: bold" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <Label text="Повторите пароль:" styleClass="section-header" GridPane.columnIndex="0" GridPane.rowIndex="2" />
             <PasswordField fx:id="confirmPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             
-            <Label text="Роль:" style="-fx-font-weight: bold" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <Label text="Роль:" styleClass="section-header" GridPane.columnIndex="0" GridPane.rowIndex="3" />
             <ComboBox fx:id="roleComboBox" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3" />
         </GridPane>
         

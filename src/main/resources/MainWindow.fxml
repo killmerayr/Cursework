@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ratingsystem.ui.MainController" stylesheets="@styles.css">
+<BorderPane prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ratingsystem.ui.MainController" stylesheets="@styles.css">
     <top>
         <VBox>
             <MenuBar fx:id="menuBar">
@@ -64,27 +64,27 @@
                     <!-- Основной контент -->
                     <HBox spacing="10.0" VBox.vgrow="ALWAYS">
                         <!-- Левая панель: Группы -->
-                        <VBox spacing="8.0" prefWidth="250.0" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label text="Группы:" styleClass="section-header" style="-fx-font-size: 12px;" />
-                            <ListView fx:id="groupListView" prefHeight="450.0" prefWidth="250.0" style="-fx-font-size: 11px;" />
+                        <VBox spacing="8.0" prefWidth="300.0" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text="Группы:" styleClass="section-header" />
+                            <ListView fx:id="groupListView" prefHeight="450.0" prefWidth="300.0" />
                         </VBox>
                         
                         <!-- Центральная панель: Дисциплины -->
-                        <VBox spacing="8.0" prefWidth="270.0" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label text="Дисциплины:" styleClass="section-header" style="-fx-font-size: 12px;" />
-                            <ListView fx:id="disciplineListView" prefHeight="450.0" prefWidth="270.0" style="-fx-font-size: 11px;" />
+                        <VBox spacing="8.0" prefWidth="320.0" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
+                            <Label text="Дисциплины:" styleClass="section-header" />
+                            <ListView fx:id="disciplineListView" prefHeight="450.0" prefWidth="320.0" />
                         </VBox>
                         
                         <!-- Правая панель: Рейтинги студентов -->
                         <VBox spacing="8.0" VBox.vgrow="ALWAYS" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label text="Рейтинги студентов:" styleClass="section-header" style="-fx-font-size: 12px;" />
+                            <Label text="Рейтинги студентов:" styleClass="section-header" />
                             <HBox spacing="8.0" prefHeight="35.0">
                                 <Button fx:id="addRatingBtn" text="➕ Добавить" onAction="#handleAddRating" styleClass="button-primary" style="-fx-min-width: 100;" />
                                 <Button fx:id="editRatingBtn" text="✏️ Редактировать" onAction="#handleEditRating" styleClass="button-secondary" style="-fx-min-width: 120;" />
                                 <Button fx:id="deleteRatingBtn" text="➖ Удалить" onAction="#handleDeleteRating" styleClass="button-danger" style="-fx-min-width: 100;" />
                             </HBox>
                             <ScrollPane fitToWidth="true" fitToHeight="true">
-                                <TableView fx:id="ratingsTable" prefHeight="400.0" VBox.vgrow="ALWAYS" style="-fx-font-size: 11px;">
+                                <TableView fx:id="ratingsTable" prefHeight="400.0" VBox.vgrow="ALWAYS">
                                     <columns>
                                         <TableColumn fx:id="studentNumColumn" text="№" prefWidth="50.0" />
                                         <TableColumn fx:id="studentNameColumn" text="ФИО Студента" prefWidth="300.0" />

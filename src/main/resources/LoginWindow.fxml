@@ -18,23 +18,15 @@
             <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
         </padding>
         
-        <Label text="Rating System" style="-fx-text-fill: -primary-color; -fx-font-weight: 900;">
-            <font>
-                <Font size="36.0" />
-            </font>
-        </Label>
+        <Label text="Rating System" styleClass="title-label" />
         
-        <Label text="Система управления рейтингами аттестации">
-            <font>
-                <Font size="14.0" />
-            </font>
-        </Label>
+        <Label text="Система управления рейтингами аттестации" styleClass="subtitle-label" />
         
         <VBox spacing="15.0">
-            <Label text="Имя пользователя:" style="-fx-font-weight: bold" />
+            <Label text="Имя пользователя:" styleClass="section-header" />
             <TextField fx:id="usernameField" promptText="Введите имя пользователя" />
             
-            <Label text="Пароль:" style="-fx-font-weight: bold" />
+            <Label text="Пароль:" styleClass="section-header" />
             <PasswordField fx:id="passwordField" promptText="Введите пароль" />
         </VBox>
         

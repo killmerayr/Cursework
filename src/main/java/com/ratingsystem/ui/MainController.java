@@ -12,12 +12,14 @@ import com.ratingsystem.utils.PDFExporter;
 import com.ratingsystem.utils.ValidationUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -309,34 +311,44 @@ public class MainController {
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        // Предотвращаем закрытие окна при ошибке валидации
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            String groupCode = groupCodeField.getText().trim();
+            String studentCountText = studentCountSpinner.getEditor().getText().trim();
+            String disciplineCountText = disciplineCountSpinner.getEditor().getText().trim();
+
+            try {
+                int studentCount = Integer.parseInt(studentCountText);
+                int disciplineCount = Integer.parseInt(disciplineCountText);
+
+                if (!ValidationUtils.isValidGroupCode(groupCode)) {
+                    showError("Неверный код группы");
+                    event.consume();
+                    return;
+                }
+                if (studentCount < 1 || studentCount > 300) {
+                    showError("Количество студентов должно быть от 1 до 300");
+                    event.consume();
+                    return;
+                }
+                if (disciplineCount < 1 || disciplineCount > 8) {
+                    showError("Количество дисциплин должно быть от 1 до 8");
+                    event.consume();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showError("Ошибка: Введите корректные числа для количества студентов и дисциплин");
+                event.consume();
+            }
+        });
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                try {
-                    String groupCode = groupCodeField.getText().trim();
-                    String studentCountText = studentCountSpinner.getEditor().getText().trim();
-                    String disciplineCountText = disciplineCountSpinner.getEditor().getText().trim();
-
-                    int studentCount = Integer.parseInt(studentCountText);
-                    int disciplineCount = Integer.parseInt(disciplineCountText);
-
-                    if (!ValidationUtils.isValidGroupCode(groupCode)) {
-                        showError("Неверный код группы");
-                        return null;
-                    }
-                    if (studentCount < 1 || studentCount > 300) {
-                        showError("Количество студентов должно быть от 1 до 300");
-                        return null;
-                    }
-                    if (disciplineCount < 1 || disciplineCount > 8) {
-                        showError("Количество дисциплин должно быть от 1 до 8");
-                        return null;
-                    }
-
-                    return new Group(groupCode, studentCount, disciplineCount);
-                } catch (NumberFormatException e) {
-                    showError("Ошибка: Введите корректные числа для количества студентов и дисциплин");
-                    return null;
-                }
+                String groupCode = groupCodeField.getText().trim();
+                int studentCount = Integer.parseInt(studentCountSpinner.getEditor().getText().trim());
+                int disciplineCount = Integer.parseInt(disciplineCountSpinner.getEditor().getText().trim());
+                return new Group(groupCode, studentCount, disciplineCount);
             }
             return null;
         });
@@ -630,14 +642,19 @@ public class MainController {
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        // Предотвращаем закрытие окна при ошибке валидации
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            String code = disciplineCodeField.getText().trim();
+            if (!ValidationUtils.isValidDisciplineCode(code)) {
+                showError("Неверный код дисциплины");
+                event.consume();
+            }
+        });
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                String code = disciplineCodeField.getText().trim();
-                if (!ValidationUtils.isValidDisciplineCode(code)) {
-                    showError("Неверный код дисциплины");
-                    return null;
-                }
-                return code;
+                return disciplineCodeField.getText().trim();
             }
             return null;
         });
@@ -718,21 +735,38 @@ public class MainController {
             return;
         }
 
-        TextInputDialog dialog = new TextInputDialog(selectedDiscipline.getDisciplineCode());
+        Dialog<String> dialog = new Dialog<>();
         styleDialog(dialog);
         dialog.setTitle("Редактировать дисциплину");
         dialog.setHeaderText("Изменение названия дисциплины");
-        dialog.setContentText("Новое название:");
+
+        TextField codeField = new TextField(selectedDiscipline.getDisciplineCode());
+        codeField.setPromptText("Новое название");
+        
+        VBox content = new VBox(10, new Label("Новое название:"), codeField);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        // Предотвращаем закрытие окна при ошибке валидации
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            String code = codeField.getText().trim();
+            if (!ValidationUtils.isValidDisciplineCode(code)) {
+                showError("Неверный код дисциплины");
+                event.consume();
+            }
+        });
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+                return codeField.getText().trim();
+            }
+            return null;
+        });
 
         Optional<String> result = dialog.showAndWait();
-        result.ifPresent(newCode -> {
+        result.ifPresent(code -> {
             try {
-                String code = newCode.trim();
-                if (!ValidationUtils.isValidDisciplineCode(code)) {
-                    showError("Неверный код дисциплины");
-                    return;
-                }
-
                 selectedDiscipline.setDisciplineCode(code);
                 disciplineService.updateDiscipline(selectedDiscipline);
                 
@@ -799,40 +833,43 @@ public class MainController {
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        // Предотвращаем закрытие окна при ошибке валидации
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            try {
+                String studentNumText = studentNumSpinner.getEditor().getText().trim();
+                String ratingText = ratingSpinner.getEditor().getText().trim().replace(',', '.');
+                String studentName = studentNameField.getText().trim();
+
+                int studentNum = Integer.parseInt(studentNumText);
+                double rating = Double.parseDouble(ratingText);
+
+                if (studentNum < 1 || studentNum > selectedGroup.getStudentCount()) {
+                    showError("Ошибка: Номер студента должен быть от 1 до " + selectedGroup.getStudentCount());
+                    event.consume();
+                    return;
+                }
+                if (rating < 0 || rating > 100) {
+                    showError("Ошибка: Рейтинг должен быть строго в диапазоне от 0 до 100");
+                    event.consume();
+                    return;
+                }
+                if (studentName.isEmpty()) {
+                    showError("Пожалуйста, введите ФИО студента");
+                    event.consume();
+                }
+            } catch (NumberFormatException e) {
+                showError("Ошибка: Введены некорректные символы. Пожалуйста, используйте только цифры.");
+                event.consume();
+            }
+        });
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                try {
-                    // Читаем текст напрямую из редактора, чтобы избежать авто-коррекции Spinner
-                    String studentNumText = studentNumSpinner.getEditor().getText().trim();
-                    String ratingText = ratingSpinner.getEditor().getText().trim().replace(',', '.');
-                    String studentName = studentNameField.getText().trim();
-
-                    int studentNum = Integer.parseInt(studentNumText);
-                    double rating = Double.parseDouble(ratingText);
-                    
-                    // Валидация номера студента
-                    if (studentNum < 1 || studentNum > selectedGroup.getStudentCount()) {
-                        showError("Ошибка: Номер студента должен быть от 1 до " + selectedGroup.getStudentCount());
-                        return null;
-                    }
-                    
-                    // Валидация рейтинга
-                    if (rating < 0 || rating > 100) {
-                        showError("Ошибка: Рейтинг должен быть строго в диапазоне от 0 до 100");
-                        return null;
-                    }
-                    
-                    // Валидация ФИО
-                    if (studentName.isEmpty()) {
-                        showError("Пожалуйста, введите ФИО студента");
-                        return null;
-                    }
-                    
-                    return new Rating(selectedDiscipline.getId(), studentNum, studentName, rating);
-                } catch (NumberFormatException e) {
-                    showError("Ошибка: Введены некорректные символы. Пожалуйста, используйте только цифры.");
-                    return null;
-                }
+                int studentNum = Integer.parseInt(studentNumSpinner.getEditor().getText().trim());
+                double rating = Double.parseDouble(ratingSpinner.getEditor().getText().trim().replace(',', '.'));
+                String studentName = studentNameField.getText().trim();
+                return new Rating(selectedDiscipline.getId(), studentNum, studentName, rating);
             }
             return null;
         });
@@ -913,30 +950,37 @@ public class MainController {
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        // Предотвращаем закрытие окна при ошибке валидации
+        Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+        okButton.addEventFilter(ActionEvent.ACTION, event -> {
+            try {
+                String newName = nameField.getText().trim();
+                String ratingText = ratingSpinner.getEditor().getText().trim().replace(',', '.');
+                double newRatingValue = Double.parseDouble(ratingText);
+
+                if (newName.isEmpty()) {
+                    showError("ФИО не может быть пустым");
+                    event.consume();
+                    return;
+                }
+
+                if (newRatingValue < 0 || newRatingValue > 100) {
+                    showError("Ошибка: Рейтинг должен быть строго в диапазоне от 0 до 100");
+                    event.consume();
+                }
+            } catch (NumberFormatException e) {
+                showError("Ошибка: Введены некорректные символы в поле рейтинга.");
+                event.consume();
+            }
+        });
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                try {
-                    String newName = nameField.getText().trim();
-                    String ratingText = ratingSpinner.getEditor().getText().trim().replace(',', '.');
-                    double newRatingValue = Double.parseDouble(ratingText);
-
-                    if (newName.isEmpty()) {
-                        showError("ФИО не может быть пустым");
-                        return null;
-                    }
-
-                    if (newRatingValue < 0 || newRatingValue > 100) {
-                        showError("Ошибка: Рейтинг должен быть строго в диапазоне от 0 до 100");
-                        return null;
-                    }
-
-                    selectedRating.setStudentName(newName);
-                    selectedRating.setRating(newRatingValue);
-                    return selectedRating;
-                } catch (NumberFormatException e) {
-                    showError("Ошибка: Введены некорректные символы в поле рейтинга.");
-                    return null;
-                }
+                String newName = nameField.getText().trim();
+                double newRatingValue = Double.parseDouble(ratingSpinner.getEditor().getText().trim().replace(',', '.'));
+                selectedRating.setStudentName(newName);
+                selectedRating.setRating(newRatingValue);
+                return selectedRating;
             }
             return null;
         });

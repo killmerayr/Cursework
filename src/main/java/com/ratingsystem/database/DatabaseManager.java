@@ -131,9 +131,12 @@ public class DatabaseManager {
         
         String password = System.getenv("DB_PASSWORD");
         if (password == null || password.trim().isEmpty()) {
-            password = config.getProperty("db.postgresql.password", "postgres");
-        } else {
-            logger.info("Using DB_PASSWORD from environment variable");
+            password = config.getProperty("db.postgresql.password");
+        }
+        
+        if (password == null || password.trim().isEmpty() || password.equals("${DB_PASSWORD}")) {
+            logger.error("Database password not found! Set DB_PASSWORD environment variable.");
+            throw new SQLException("Database password is not configured. Security requirement not met.");
         }
         
         dbUrl = String.format("jdbc:postgresql://%s:%s/%s?sslmode=disable", host, port, database);

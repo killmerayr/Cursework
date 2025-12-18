@@ -29,8 +29,9 @@ public class UserService {
             ResultSet rs = db.executeQuery("SELECT id, password_hash FROM users WHERE username = 'admin'");
             
             if (!rs.next()) {
+                // ВНИМАНИЕ: Смените этот пароль сразу после первого входа!
                 createUser("admin", "admin123", User.UserRole.ADMINISTRATOR);
-                logger.info("Default admin user created");
+                logger.warn("!!! DEFAULT ADMIN CREATED with password 'admin123'. CHANGE IT IMMEDIATELY !!!");
             } else {
                 String currentHash = rs.getString("password_hash");
                 // Если хеш старый (не BCrypt), обновляем его до BCrypt для безопасности

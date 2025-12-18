@@ -21,28 +21,42 @@
 }
 
 .root {
-    -fx-font-family: 'Segoe UI', 'Inter', 'Roboto', sans-serif;
-    -fx-font-size: 13px;
+    -fx-font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -fx-font-size: 14px;
     -fx-background-color: -background;
     -fx-text-fill: -text-primary;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 .user-label {
+    -fx-font-weight: 700;
+    -fx-text-fill: -primary-color !important;
+    -fx-font-size: 15px;
+}
+
+.title-label {
+    -fx-font-size: 36px;
     -fx-font-weight: 800;
     -fx-text-fill: -primary-color !important;
-    -fx-font-size: 14px;
+}
+
+.subtitle-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-text-fill: -text-secondary !important;
 }
 
 .section-header {
-    -fx-font-weight: bold;
-    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
     -fx-text-fill: -text-primary !important;
 }
 
 /* Global Text Visibility - Force visibility on all common text containers */
 .label, .text, .tab-label, .table-cell, .list-cell, .menu-item .label, .header-panel .label, .column-header .label, .check-box, .radio-button, .titled-pane > .title > .label {
     -fx-text-fill: -text-primary !important;
-    -fx-font-weight: 600;
+    -fx-font-weight: 400; /* Normal weight for better readability */
 }
 
 /* MenuBar */
@@ -55,7 +69,7 @@
 
 .menu-bar .menu-button {
     -fx-text-fill: -text-primary !important;
-    -fx-font-weight: 700;
+    -fx-font-weight: 500;
 }
 
 .menu-bar .menu-button:hover, .menu-bar .menu-button:showing {
@@ -79,14 +93,20 @@
 /* Buttons */
 .button {
     -fx-padding: 10 20 10 20;
-    -fx-font-size: 12px;
-    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
     -fx-border-radius: 8;
     -fx-background-radius: 8;
     -fx-cursor: hand;
     -fx-text-fill: #FFFFFF !important; /* Default button text is white */
     -fx-background-color: -primary-color;
     -fx-transition: all 0.2s ease;
+    -fx-background-insets: 0;
+}
+
+.button:focused {
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
 }
 
 .button:hover {
@@ -138,17 +158,18 @@
 
 .tab .tab-label {
     -fx-text-fill: -text-secondary !important;
-    -fx-font-weight: 600;
+    -fx-font-weight: 500;
 }
 
 .tab:selected {
     -fx-border-color: -primary-color;
     -fx-border-width: 0 0 3 0;
+    -fx-background-color: transparent;
 }
 
 .tab:selected .tab-label {
     -fx-text-fill: -primary-color !important;
-    -fx-font-weight: 700;
+    -fx-font-weight: 600;
 }
 
 /* TableView */
@@ -172,7 +193,7 @@
 
 .table-view .column-header .label {
     -fx-text-fill: -text-secondary !important;
-    -fx-font-weight: 700;
+    -fx-font-weight: 600;
 }
 
 .table-cell {
@@ -206,7 +227,7 @@
 .list-cell {
     -fx-padding: 12;
     -fx-text-fill: -text-primary !important;
-    -fx-font-weight: 600;
+    -fx-font-weight: 400;
     -fx-background-color: transparent;
     -fx-border-color: -surface-light;
     -fx-border-width: 0 0 1 0;
@@ -215,7 +236,7 @@
 .list-cell:selected {
     -fx-background-color: #EEF2FF;
     -fx-text-fill: -primary-color !important;
-    -fx-font-weight: 700;
+    -fx-font-weight: 600;
 }
 
 /* Inputs */
@@ -226,7 +247,7 @@
     -fx-background-radius: 8;
     -fx-padding: 8;
     -fx-text-fill: -text-primary !important;
-    -fx-font-weight: 600;
+    -fx-font-weight: 400;
 }
 
 .text-field:focused, .password-field:focused, .spinner:focused, .combo-box:focused {
@@ -274,7 +295,7 @@
 .dialog-pane .header-panel .label {
     -fx-text-fill: -primary-color !important;
     -fx-font-size: 16px;
-    -fx-font-weight: 800;
+    -fx-font-weight: 700;
 }
 
 .dialog-pane .content {
@@ -298,9 +319,6 @@
 .scroll-bar .thumb:hover {
     -fx-background-color: -secondary-color;
 }
-
-.dialog-pane .content .label {
-    -fx-text-fill: -text-primary;
 }
 
 /* ScrollBars */

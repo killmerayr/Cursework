@@ -38,8 +38,11 @@ public class RegisterController {
 
     @FXML
     private void initialize() {
-        roleComboBox.setItems(FXCollections.observableArrayList("GUEST", "MODERATOR"));
+        // По умолчанию все новые пользователи - Гости. 
+        // Роль Модератора может назначить только Администратор через БД или панель управления.
+        roleComboBox.setItems(FXCollections.observableArrayList("GUEST"));
         roleComboBox.setValue("GUEST");
+        roleComboBox.setDisable(true); // Блокируем выбор, чтобы нельзя было подменить через UI
     }
 
     @FXML
@@ -74,6 +77,9 @@ public class RegisterController {
             return;
         }
 
+        // Принудительно устанавливаем роль GUEST, игнорируя что пришло из UI (на всякий случай)
+        String finalRole = "GUEST";
+
         // Проверить, существует ли пользователь
         try {
             if (userService.getUserByUsername(username) != null) {
@@ -82,12 +88,12 @@ public class RegisterController {
                 return;
             }
 
-            // Создать пользователя
-            userService.createUser(username, password, User.UserRole.fromString(role));
+            // Создать пользователя с ролью GUEST
+            userService.createUser(username, password, User.UserRole.GUEST);
             
             messageLabel.setText("Регистрация успешна! Теперь вы можете войти в систему.");
             messageLabel.setStyle("-fx-text-fill: #4caf50;");
-            logger.info("New user registered: {} with role {}", username, role);
+            logger.info("New user registered: {} with role GUEST", username);
 
             // Закрыть окно через 2 секунды
             javafx.application.Platform.runLater(() -> {

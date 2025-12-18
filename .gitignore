@@ -5,3 +5,7 @@ target/
 *.iml
 .DS_Store
 dist/
+
+# Secrets and local config
+src/main/resources/application.properties
+.env

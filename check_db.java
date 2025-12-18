@@ -5,9 +5,13 @@ public class check_db {
         try {
             Class.forName("org.postgresql.Driver");
             String url = "jdbc:postgresql://localhost:5432/rating_system";
-            String user = "applt";
+            String user = System.getenv("DB_USER");
+            if (user == null) user = "rating_user";
             String password = System.getenv("DB_PASSWORD");
-            if (password == null) password = "";
+            if (password == null || password.isEmpty()) {
+                System.err.println("Error: DB_PASSWORD environment variable is not set!");
+                return;
+            }
             
             Connection conn = DriverManager.getConnection(url, user, password);
             System.out.println("✓ Connected to PostgreSQL");
