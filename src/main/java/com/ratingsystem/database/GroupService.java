@@ -117,6 +117,29 @@ public class GroupService {
     }
 
     /**
+     * Удалить группу по ID
+     */
+    public void deleteGroupById(int groupId) throws Exception {
+        // Удалить рейтинги
+        ResultSet disciplines = db.executeQuery(
+                "SELECT id FROM disciplines WHERE group_id = ?", groupId
+        );
+        while (disciplines.next()) {
+            db.executeUpdate("DELETE FROM ratings WHERE discipline_id = ?", disciplines.getInt("id"));
+        }
+        
+        // Удалить дисциплины
+        db.executeUpdate("DELETE FROM disciplines WHERE group_id = ?", groupId);
+        
+        // Удалить сводки
+        db.executeUpdate("DELETE FROM summaries WHERE group_id = ?", groupId);
+        
+        // Удалить группу
+        db.executeUpdate("DELETE FROM groups WHERE id = ?", groupId);
+        logger.info("Group deleted: ID {}", groupId);
+    }
+
+    /**
      * Удалить группу по коду
      */
     public void deleteGroupByCode(String code) throws Exception {

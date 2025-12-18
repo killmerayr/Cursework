@@ -94,6 +94,18 @@ public class DisciplineService {
     }
 
     /**
+     * Обновить дисциплину
+     */
+    public void updateDiscipline(Discipline discipline) throws Exception {
+        db.executeUpdate(
+                "UPDATE disciplines SET discipline_code = ? WHERE id = ?",
+                discipline.getDisciplineCode(),
+                discipline.getId()
+        );
+        logger.info("Discipline updated: {} (ID: {})", discipline.getDisciplineCode(), discipline.getId());
+    }
+
+    /**
      * Получить количество дисциплин для группы
      */
     public int getDisciplineCount(int groupId) {

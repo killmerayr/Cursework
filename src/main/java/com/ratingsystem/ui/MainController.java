@@ -81,7 +81,13 @@ public class MainController {
     private Button createGroupBtn;
 
     @FXML
+    private Button deleteGroupBtn;
+
+    @FXML
     private Button addDisciplineBtn;
+
+    @FXML
+    private Button editDisciplineBtn;
 
     @FXML
     private Button deleteDisciplineBtn;
@@ -164,7 +170,9 @@ public class MainController {
         boolean isModerator = isAdmin || currentUser.getRole() == User.UserRole.MODERATOR;
         
         createGroupBtn.setDisable(!isModerator);
+        if (deleteGroupBtn != null) deleteGroupBtn.setDisable(!isModerator);
         addDisciplineBtn.setDisable(!isModerator);
+        if (editDisciplineBtn != null) editDisciplineBtn.setDisable(!isModerator);
         deleteDisciplineBtn.setDisable(!isModerator);
         addRatingBtn.setDisable(!isModerator);
         editRatingBtn.setDisable(!isModerator);
@@ -342,9 +350,10 @@ public class MainController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 com.ratingsystem.database.GroupService groupService = new com.ratingsystem.database.GroupService();
-                groupService.deleteGroupByCode(selectedGroup.getGroupCode());
+                groupService.deleteGroupById(selectedGroup.getId());
                 
                 loadGroups();
+                groupListView.getSelectionModel().clearSelection();
                 disciplineListView.getItems().clear();
                 ratingsTable.getItems().clear();
                 
@@ -597,6 +606,50 @@ public class MainController {
     }
 
     @FXML
+    private void handleEditDiscipline() {
+        if (!canModifyData()) {
+            showError("У вас нет прав для этого действия");
+            return;
+        }
+
+        Discipline selectedDiscipline = disciplineListView.getSelectionModel().getSelectedItem();
+        if (selectedDiscipline == null) {
+            showError("Пожалуйста, выберите дисциплину для редактирования");
+            return;
+        }
+
+        TextInputDialog dialog = new TextInputDialog(selectedDiscipline.getDisciplineCode());
+        dialog.setTitle("Редактировать дисциплину");
+        dialog.setHeaderText("Изменение названия дисциплины");
+        dialog.setContentText("Новое название:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(newCode -> {
+            try {
+                String code = newCode.trim();
+                if (!ValidationUtils.isValidDisciplineCode(code)) {
+                    showError("Неверный код дисциплины");
+                    return;
+                }
+
+                selectedDiscipline.setDisciplineCode(code);
+                disciplineService.updateDiscipline(selectedDiscipline);
+                
+                Group selectedGroup = groupListView.getSelectionModel().getSelectedItem();
+                if (selectedGroup != null) {
+                    loadDisciplinesForGroup(selectedGroup.getId());
+                }
+                
+                showInfo("Дисциплина обновлена");
+                logger.info("Discipline updated: {}", code);
+            } catch (Exception e) {
+                logger.error("Error updating discipline", e);
+                showError("Ошибка при обновлении дисциплины: " + e.getMessage());
+            }
+        });
+    }
+
+    @FXML
     private void handleAddRating() {
         if (!canModifyData()) {
             showError("У вас нет прав для этого действия");
@@ -631,23 +684,23 @@ public class MainController {
         studentNameField.setPromptText("Введите ФИО студента");
         
         // Рейтинг
-        Spinner<Integer> ratingSpinner = new Spinner<>(0, 100, 50);
+        Spinner<Double> ratingSpinner = new Spinner<>(0.0, 100.0, 50.0, 0.5);
         ratingSpinner.setEditable(true);
         
         // Обработчик для рейтинга - валидация при изменении
         ratingSpinner.getEditor().setOnAction(event -> {
             try {
-                String text = ratingSpinner.getEditor().getText();
-                int value = Integer.parseInt(text);
+                String text = ratingSpinner.getEditor().getText().replace(',', '.');
+                double value = Double.parseDouble(text);
                 if (value < 0 || value > 100) {
                     showError("Рейтинг должен быть от 0 до 100");
-                    ratingSpinner.getEditor().setText("50");
-                    ratingSpinner.getValueFactory().setValue(50);
+                    ratingSpinner.getEditor().setText("50.0");
+                    ratingSpinner.getValueFactory().setValue(50.0);
                 }
             } catch (NumberFormatException e) {
                 showError("Введите корректное число");
-                ratingSpinner.getEditor().setText("50");
-                ratingSpinner.getValueFactory().setValue(50);
+                ratingSpinner.getEditor().setText("50.0");
+                ratingSpinner.getValueFactory().setValue(50.0);
             }
         });
         
@@ -683,7 +736,7 @@ public class MainController {
                 try {
                     int studentNum = studentNumSpinner.getValue();
                     String studentName = studentNameField.getText().trim();
-                    int rating = ratingSpinner.getValue();
+                    double rating = ratingSpinner.getValue();
                     
                     // Валидация номера студента
                     if (studentNum < 1 || studentNum > selectedGroup.getStudentCount()) {
@@ -762,43 +815,53 @@ public class MainController {
         }
 
         Discipline selectedDiscipline = disciplineListView.getSelectionModel().getSelectedItem();
-        Group selectedGroup = groupListView.getSelectionModel().getSelectedItem();
 
-        Dialog<Double> dialog = new Dialog<>();
+        Dialog<Rating> dialog = new Dialog<>();
         dialog.setTitle("Редактировать рейтинг");
-        dialog.setHeaderText("Студент: " + selectedRating.getStudentName() + " (№" + selectedRating.getStudentNumber() + ")");
+        dialog.setHeaderText("Редактирование данных студента №" + selectedRating.getStudentNumber());
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
 
+        TextField nameField = new TextField(selectedRating.getStudentName());
+        nameField.setPromptText("ФИО студента");
+
         Spinner<Double> ratingSpinner = new Spinner<>(0.0, 100.0, selectedRating.getRating(), 0.5);
         ratingSpinner.setEditable(true);
 
-        grid.add(new Label("Новый рейтинг (0-100):"), 0, 0);
-        grid.add(ratingSpinner, 1, 0);
+        grid.add(new Label("ФИО студента:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Рейтинг (0-100):"), 0, 1);
+        grid.add(ratingSpinner, 1, 1);
 
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                return ratingSpinner.getValue();
+                String newName = nameField.getText().trim();
+                if (newName.isEmpty()) {
+                    showError("ФИО не может быть пустым");
+                    return null;
+                }
+                selectedRating.setStudentName(newName);
+                selectedRating.setRating(ratingSpinner.getValue());
+                return selectedRating;
             }
             return null;
         });
 
-        Optional<Double> result = dialog.showAndWait();
-        result.ifPresent(newRatingValue -> {
+        Optional<Rating> result = dialog.showAndWait();
+        result.ifPresent(updatedRating -> {
             try {
-                selectedRating.setRating(newRatingValue);
-                ratingService.updateRating(selectedRating);
+                ratingService.updateRating(updatedRating);
                 loadRatingsForDiscipline(selectedDiscipline.getId());
-                showInfo("Рейтинг обновлен");
-                logger.info("Rating updated for student {} in discipline {}", selectedRating.getStudentName(), selectedDiscipline.getId());
+                showInfo("Данные обновлены");
+                logger.info("Rating updated for student {} in discipline {}", updatedRating.getStudentName(), selectedDiscipline.getId());
             } catch (Exception e) {
                 logger.error("Error updating rating", e);
-                showError("Ошибка при обновлении рейтинга: " + e.getMessage());
+                showError("Ошибка при обновлении: " + e.getMessage());
             }
         });
     }
