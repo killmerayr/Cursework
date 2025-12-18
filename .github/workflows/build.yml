@@ -50,13 +50,13 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: |
         cd dist
-        zip -r ../RatingSystem-${{ matrix.os }}.zip RatingSystem/
+        zip -r ../RatingSystem-${{ matrix.os }}.zip *
 
     - name: Package (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         cd dist
-        Compress-Archive -Path RatingSystem/* -DestinationPath ../RatingSystem-windows-latest.zip
+        Compress-Archive -Path * -DestinationPath ../RatingSystem-windows-latest.zip
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
