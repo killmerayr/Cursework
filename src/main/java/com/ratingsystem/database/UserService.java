@@ -22,31 +22,6 @@ public class UserService {
     }
 
     /**
-     * Инициализировать администратора по умолчанию
-     */
-    public void initializeDefaultAdmin() {
-        try {
-            ResultSet rs = db.executeQuery("SELECT id, password_hash FROM users WHERE username = 'admin'");
-            
-            if (!rs.next()) {
-                // ВНИМАНИЕ: Смените этот пароль сразу после первого входа!
-                createUser("admin", "admin123", User.UserRole.ADMINISTRATOR);
-                logger.warn("!!! DEFAULT ADMIN CREATED with password 'admin123'. CHANGE IT IMMEDIATELY !!!");
-            } else {
-                String currentHash = rs.getString("password_hash");
-                // Если хеш старый (не BCrypt), обновляем его до BCrypt для безопасности
-                if (currentHash == null || !currentHash.startsWith("$2a$")) {
-                    String newHash = PasswordUtils.hashPassword("admin123");
-                    db.executeUpdate("UPDATE users SET password_hash = ? WHERE username = 'admin'", newHash);
-                    logger.info("Default admin password migrated to BCrypt");
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error initializing default admin", e);
-        }
-    }
-
-    /**
      * Аутентифицировать пользователя
      */
     public User authenticate(String username, String password) {

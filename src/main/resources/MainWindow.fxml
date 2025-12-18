@@ -37,6 +37,7 @@
                         <Button fx:id="deleteGroupBtn" text="🗑️ Удалить группу" onAction="#handleDeleteGroup" styleClass="button-danger" style="-fx-min-width: 150;" />
                         <Button text="📄 Сводка (PDF)" onAction="#handleExportToPDF" styleClass="button-secondary" style="-fx-min-width: 150;" />
                         <Button text="📊 Полный отчёт (PDF)" onAction="#handleExportFullReport" styleClass="button-secondary" style="-fx-min-width: 150;" />
+                        <Button text="📥 Импорт из PDF" onAction="#handleImportFromPDF" styleClass="button-secondary" style="-fx-min-width: 150;" />
                     </HBox>
                     <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-fit-to-width: true;">
                         <TableView fx:id="groupsTable" prefHeight="400.0" VBox.vgrow="ALWAYS">
@@ -107,6 +108,7 @@
                     <Label text="Список пользователей системы:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
                     <HBox spacing="10.0">
                         <Button fx:id="deleteUserBtn" text="🗑️ Удалить пользователя" onAction="#handleDeleteUser" styleClass="button-danger" style="-fx-min-width: 180;" />
+                        <Button fx:id="changeRoleBtn" text="🎭 Изменить роль" onAction="#handleChangeRole" styleClass="button-secondary" style="-fx-min-width: 180;" />
                         <Button text="🔄 Обновить список" onAction="#loadUsers" styleClass="button-secondary" style="-fx-min-width: 150;" />
                     </HBox>
                     <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
@@ -123,7 +125,6 @@
             <Tab text="О программе">
                 <VBox spacing="20.0" style="-fx-padding: 30px; -fx-alignment: TOP_CENTER;">
                     <Label text="Rating System" style="-fx-font-size: 32px; -fx-font-weight: 900; -fx-text-fill: -primary-color;" />
-                    <Label text="Система управления рейтингами аттестации" style="-fx-font-size: 16px; -fx-font-weight: 700;" />
                     <Separator />
                     
                     <VBox spacing="10.0">

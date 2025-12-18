@@ -11,6 +11,9 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 /**
  * Главный класс приложения - точка входа
  */
@@ -25,9 +28,6 @@ public class RatingSystemApp extends Application {
             DatabaseManager.getInstance().initialize();
             logger.info("Database initialized successfully");
 
-            // Инициализация данных
-            new UserService().initializeDefaultAdmin();
-
             // Загрузка окна входа
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/LoginWindow.fxml"));
             Parent root = loader.load();
@@ -40,8 +40,22 @@ public class RatingSystemApp extends Application {
             logger.info("Application started");
         } catch (Exception e) {
             logger.error("Failed to start application", e);
-            System.exit(1);
+            showErrorAndExit("Ошибка инициализации", 
+                "Не удалось подключиться к базе данных.\n\n" +
+                "Убедитесь, что:\n" +
+                "1. База данных запущена (docker-compose up)\n" +
+                "2. Установлена переменная окружения DB_PASSWORD\n\n" +
+                "Детали: " + e.getMessage());
         }
+    }
+
+    private void showErrorAndExit(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait().ifPresent(rs -> System.exit(1));
+        System.exit(1);
     }
 
     @Override

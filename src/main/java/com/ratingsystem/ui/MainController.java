@@ -9,6 +9,7 @@ import com.ratingsystem.models.Group;
 import com.ratingsystem.models.Rating;
 import com.ratingsystem.models.User;
 import com.ratingsystem.utils.PDFExporter;
+import com.ratingsystem.utils.PDFImporter;
 import com.ratingsystem.utils.ValidationUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +26,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.*;
@@ -102,6 +104,9 @@ public class MainController {
 
     @FXML
     private Button deleteUserBtn;
+
+    @FXML
+    private Button changeRoleBtn;
 
     @FXML
     private Button addDisciplineBtn;
@@ -188,7 +193,7 @@ public class MainController {
 
     public void setCurrentUser(User user) {
         this.currentUser = user;
-        userLabel.setText("Пользователь: " + user.getUsername() + " (" + user.getRole().getDisplayName() + ")");
+        userLabel.setText(user.getUsername() + " (" + user.getRole().getDisplayName() + ")");
         setupMenuPermissions();
     }
 
@@ -216,6 +221,7 @@ public class MainController {
         }
         
         if (deleteUserBtn != null) deleteUserBtn.setDisable(!isAdmin); // Удалять юзеров может только админ
+        if (changeRoleBtn != null) changeRoleBtn.setDisable(!isAdmin); // Менять роли может только админ
         
         logger.info("Permissions set for role: {}", currentUser.getRole());
     }
@@ -539,11 +545,6 @@ public class MainController {
             return;
         }
 
-        if (selectedUser.getUsername().equals("admin")) {
-            showError("Нельзя удалить главного администратора");
-            return;
-        }
-
         if (selectedUser.getId() == currentUser.getId()) {
             showError("Вы не можете удалить самого себя");
             return;
@@ -565,6 +566,43 @@ public class MainController {
                 showError("Ошибка при удалении пользователя");
             }
         }
+    }
+
+    @FXML
+    private void handleChangeRole() {
+        if (currentUser.getRole() != User.UserRole.ADMINISTRATOR) {
+            showError("Только администратор может изменять роли");
+            return;
+        }
+
+        User selectedUser = usersTable.getSelectionModel().getSelectedItem();
+        if (selectedUser == null) {
+            showError("Выберите пользователя для изменения роли");
+            return;
+        }
+
+        if (selectedUser.getUsername().equals("admin")) {
+            showError("Нельзя изменить роль главного администратора");
+            return;
+        }
+
+        ChoiceDialog<User.UserRole> dialog = new ChoiceDialog<>(selectedUser.getRole(), User.UserRole.values());
+        styleDialog(dialog);
+        dialog.setTitle("Изменение роли");
+        dialog.setHeaderText("Выберите новую роль для пользователя " + selectedUser.getUsername());
+        dialog.setContentText("Роль:");
+
+        Optional<User.UserRole> result = dialog.showAndWait();
+        result.ifPresent(newRole -> {
+            try {
+                userService.updateUserRole(selectedUser.getId(), newRole);
+                loadUsers();
+                showInfo("Роль пользователя " + selectedUser.getUsername() + " изменена на " + newRole.getDisplayName());
+            } catch (Exception e) {
+                logger.error("Error updating user role", e);
+                showError("Ошибка при обновлении роли");
+            }
+        });
     }
 
     /**
@@ -1060,6 +1098,114 @@ public class MainController {
         alert.setTitle("Информация");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleImportFromPDF() {
+        if (!canModifyData()) {
+            showError("У вас нет прав для импорта данных");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Выберите PDF отчет для импорта");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        File selectedFile = fileChooser.showOpenDialog(tabPane.getScene().getWindow());
+
+        if (selectedFile != null) {
+            try {
+                PDFImporter.ImportedData data = PDFImporter.importDisciplineRatings(selectedFile.getAbsolutePath());
+                
+                // Показать превью данных
+                StringBuilder preview = new StringBuilder();
+                preview.append("Группа: ").append(data.groupCode).append("\n");
+                preview.append("Дисциплина: ").append(data.disciplineName).append("\n");
+                preview.append("Найдено студентов: ").append(data.students.size()).append("\n\n");
+                preview.append("Вы хотите импортировать эти данные?");
+
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                styleDialog(confirm);
+                confirm.setTitle("Подтверждение импорта");
+                confirm.setHeaderText("Обнаружены данные в PDF");
+                confirm.setContentText(preview.toString());
+
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.OK) {
+                    processImportedData(data);
+                }
+            } catch (Exception e) {
+                logger.error("Error importing PDF", e);
+                String errorMsg = e.getMessage();
+                if (errorMsg == null || errorMsg.isEmpty()) errorMsg = e.toString();
+                showError("Ошибка при чтении PDF: " + errorMsg + "\n\nУбедитесь, что вы выбираете файл 'Рейтинги студентов по дисциплине', а не сводку.");
+            }
+        }
+    }
+
+    private void processImportedData(PDFImporter.ImportedData data) {
+        try {
+            // 1. Найти или создать группу
+            Group group = groupService.getGroupByCode(data.groupCode);
+            if (group == null) {
+                group = new Group(0, data.groupCode, data.students.size(), 1);
+                groupService.createGroup(group);
+                group = groupService.getGroupByCode(data.groupCode);
+                logger.info("Created new group during import: {}", data.groupCode);
+            }
+
+            // 2. Найти или создать дисциплину
+            List<Discipline> disciplines = disciplineService.getDisciplinesByGroup(group.getId());
+            Discipline targetDisc = null;
+            for (Discipline d : disciplines) {
+                if (d.getDisciplineCode().equalsIgnoreCase(data.disciplineName)) {
+                    targetDisc = d;
+                    break;
+                }
+            }
+
+            if (targetDisc == null) {
+                targetDisc = new Discipline(0, group.getId(), data.disciplineName);
+                disciplineService.createDiscipline(targetDisc);
+                // Перезагружаем чтобы получить ID
+                disciplines = disciplineService.getDisciplinesByGroup(group.getId());
+                for (Discipline d : disciplines) {
+                    if (d.getDisciplineCode().equalsIgnoreCase(data.disciplineName)) {
+                        targetDisc = d;
+                        break;
+                    }
+                }
+            }
+
+            // 3. Импорт рейтингов
+            int importedCount = 0;
+            for (int i = 0; i < data.students.size(); i++) {
+                String[] student = data.students.get(i);
+                String name = student[0];
+                double ratingVal = Double.parseDouble(student[1]);
+                int studentNum = i + 1;
+
+                Rating rating = new Rating(targetDisc.getId(), studentNum, name, ratingVal);
+                
+                // Проверяем существование
+                Rating existing = ratingService.getRatingByStudent(targetDisc.getId(), studentNum);
+                if (existing != null) {
+                    existing.setRating(ratingVal);
+                    existing.setStudentName(name);
+                    ratingService.updateRating(existing);
+                } else {
+                    ratingService.addRating(rating);
+                }
+                importedCount++;
+            }
+
+            loadGroups();
+            showInfo("Успешно импортировано " + importedCount + " записей для группы " + data.groupCode);
+            logger.info("Imported {} ratings from PDF", importedCount);
+
+        } catch (Exception e) {
+            logger.error("Error processing imported data", e);
+            showError("Ошибка при сохранении данных: " + e.getMessage());
+        }
     }
 
     /**

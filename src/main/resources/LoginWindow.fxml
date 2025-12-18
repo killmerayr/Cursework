@@ -20,8 +20,6 @@
         
         <Label text="Rating System" styleClass="title-label" />
         
-        <Label text="Система управления рейтингами аттестации" styleClass="subtitle-label" />
-        
         <VBox spacing="15.0">
             <Label text="Имя пользователя:" styleClass="section-header" />
             <TextField fx:id="usernameField" promptText="Введите имя пользователя" />
@@ -40,7 +38,5 @@
             <Button fx:id="loginButton" onAction="#handleLogin" prefWidth="120.0" styleClass="button-primary" text="Вход" />
             <Button fx:id="registerButton" onAction="#handleRegister" prefWidth="120.0" styleClass="button-secondary" text="Регистрация" />
         </HBox>
-        
-        <Label text="Demo: admin / admin123" style="-fx-font-style: italic" />
     </VBox>
 </AnchorPane>
