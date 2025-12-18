@@ -102,6 +102,24 @@
                 <TextArea fx:id="contentArea" editable="false" prefHeight="600.0" prefWidth="900.0" wrapText="true" style="-fx-font-size: 11px; -fx-font-family: 'Monaco', 'Consolas', monospace;" />
             </Tab>
             
+            <Tab fx:id="usersTab" text="Пользователи">
+                <VBox spacing="10.0" style="-fx-padding: 10px;">
+                    <Label text="Список пользователей системы:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <HBox spacing="10.0">
+                        <Button fx:id="deleteUserBtn" text="🗑️ Удалить пользователя" onAction="#handleDeleteUser" style="-fx-min-width: 180;" />
+                        <Button text="🔄 Обновить список" onAction="#loadUsers" style="-fx-min-width: 150;" />
+                    </HBox>
+                    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="userIdColumn" text="ID" prefWidth="50.0" />
+                            <TableColumn fx:id="userNameColumn" text="Имя пользователя" prefWidth="200.0" />
+                            <TableColumn fx:id="userRoleColumn" text="Роль" prefWidth="150.0" />
+                        </columns>
+                        <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
+                    </TableView>
+                </VBox>
+            </Tab>
+            
             <Tab text="О программе">
                 <VBox spacing="20.0" style="-fx-padding: 30px; -fx-alignment: TOP_CENTER;">
                     <Label text="Rating System" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;" />

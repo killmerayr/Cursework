@@ -78,10 +78,28 @@ public class MainController {
     private TableColumn<Rating, String> ratingColumn;
 
     @FXML
+    private Tab usersTab;
+
+    @FXML
+    private TableView<User> usersTable;
+
+    @FXML
+    private TableColumn<User, Integer> userIdColumn;
+
+    @FXML
+    private TableColumn<User, String> userNameColumn;
+
+    @FXML
+    private TableColumn<User, String> userRoleColumn;
+
+    @FXML
     private Button createGroupBtn;
 
     @FXML
     private Button deleteGroupBtn;
+
+    @FXML
+    private Button deleteUserBtn;
 
     @FXML
     private Button addDisciplineBtn;
@@ -106,6 +124,7 @@ public class MainController {
     private DatabaseManager db;
     private com.ratingsystem.database.DisciplineService disciplineService;
     private com.ratingsystem.database.RatingService ratingService;
+    private com.ratingsystem.database.UserService userService;
 
     @FXML
     private void initialize() {
@@ -114,18 +133,25 @@ public class MainController {
             db = DatabaseManager.getInstance();
             disciplineService = new DisciplineService();
             ratingService = new RatingService();
+            userService = new com.ratingsystem.database.UserService();
             
             logger.info("Setting up table columns");
             setupTableColumns();
             
             logger.info("Setting up ratings table columns");
             setupRatingsTableColumns();
+
+            logger.info("Setting up users table columns");
+            setupUsersTableColumns();
             
             logger.info("Setting up disciplines tab");
             setupDisciplinesTab();
             
             logger.info("Loading groups");
             loadGroups();
+
+            logger.info("Loading users");
+            loadUsers();
             
             logger.info("MainController initialized successfully");
         } catch (Exception e) {
@@ -177,6 +203,15 @@ public class MainController {
         addRatingBtn.setDisable(!isModerator);
         editRatingBtn.setDisable(!isModerator);
         deleteRatingBtn.setDisable(!isModerator);
+
+        // Вкладка пользователей доступна только админам и модераторам
+        if (usersTab != null) {
+            if (!isModerator) {
+                tabPane.getTabs().remove(usersTab);
+            }
+        }
+        
+        if (deleteUserBtn != null) deleteUserBtn.setDisable(!isAdmin); // Удалять юзеров может только админ
         
         logger.info("Permissions set for role: {}", currentUser.getRole());
     }
@@ -430,6 +465,72 @@ public class MainController {
     private void handleLogout() {
         Stage stage = (Stage) menuBar.getScene().getWindow();
         stage.close();
+    }
+
+    /**
+     * Настроить столбцы таблицы пользователей
+     */
+    private void setupUsersTableColumns() {
+        userIdColumn.setCellValueFactory(param -> 
+                new javafx.beans.property.SimpleIntegerProperty(param.getValue().getId()).asObject());
+        userNameColumn.setCellValueFactory(param -> 
+                new javafx.beans.property.SimpleStringProperty(param.getValue().getUsername()));
+        userRoleColumn.setCellValueFactory(param -> 
+                new javafx.beans.property.SimpleStringProperty(param.getValue().getRole().getDisplayName()));
+    }
+
+    /**
+     * Загрузить список пользователей
+     */
+    @FXML
+    private void loadUsers() {
+        try {
+            List<User> users = userService.getAllUsers();
+            usersTable.setItems(FXCollections.observableArrayList(users));
+            logger.info("Loaded {} users", users.size());
+        } catch (Exception e) {
+            logger.error("Error loading users", e);
+        }
+    }
+
+    @FXML
+    private void handleDeleteUser() {
+        if (currentUser.getRole() != User.UserRole.ADMINISTRATOR) {
+            showError("Только администратор может удалять пользователей");
+            return;
+        }
+
+        User selectedUser = usersTable.getSelectionModel().getSelectedItem();
+        if (selectedUser == null) {
+            showError("Выберите пользователя для удаления");
+            return;
+        }
+
+        if (selectedUser.getUsername().equals("admin")) {
+            showError("Нельзя удалить главного администратора");
+            return;
+        }
+
+        if (selectedUser.getId() == currentUser.getId()) {
+            showError("Вы не можете удалить самого себя");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Подтверждение");
+        confirm.setContentText("Удалить пользователя \"" + selectedUser.getUsername() + "\"?");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                userService.deleteUser(selectedUser.getId());
+                loadUsers();
+                showInfo("Пользователь удален");
+            } catch (Exception e) {
+                logger.error("Error deleting user", e);
+                showError("Ошибка при удалении пользователя");
+            }
+        }
     }
 
     /**
