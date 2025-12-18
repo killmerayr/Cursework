@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: rating_system_db
+    environment:
+      POSTGRES_DB: rating_system
+      POSTGRES_USER: rating_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_rating_pass_2025}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rating_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  rating_network:
+    driver: bridge

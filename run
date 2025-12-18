@@ -1,0 +1,115 @@
+#!/bin/bash
+
+#################################################################################
+# Rating System - Кроссплатформенный скрипт запуска
+# Работает на Windows (Git Bash, WSL), macOS, Linux
+# Версия: 1.0.0
+# Использование: ./run [clean|build|run]
+#################################################################################
+
+set -e
+
+# Цвета для вывода
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Функция для вывода
+print_header() {
+    echo -e "${BLUE}========================================${NC}"
+    echo -e "${BLUE}$1${NC}"
+    echo -e "${BLUE}========================================${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}✓ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}✗ $1${NC}"
+}
+
+print_info() {
+    echo -e "${YELLOW}ℹ $1${NC}"
+}
+
+# Проверка Java
+check_java() {
+    if ! command -v java &> /dev/null; then
+        print_error "Java не найдена!"
+        print_info "Установите Java 11 или выше: https://www.oracle.com/java/"
+        exit 1
+    fi
+    
+    local java_version=$(java -version 2>&1 | grep -oE '"[0-9]+' | head -1 | cut -c 2-)
+    print_success "Java найдена (версия $java_version)"
+}
+
+# Проверка Maven
+check_maven() {
+    if ! command -v mvn &> /dev/null; then
+        print_error "Maven не найден!"
+        print_info "Установите Maven: https://maven.apache.org/"
+        exit 1
+    fi
+    
+    print_success "Maven найден"
+}
+
+# Сборка проекта
+build() {
+    print_header "Сборка проекта"
+    mvn clean compile
+    print_success "Проект успешно собран"
+}
+
+# Запуск приложения
+run() {
+    print_header "Запуск Rating System"
+    mvn javafx:run
+}
+
+# Очистка проекта
+clean() {
+    print_header "Очистка проекта"
+    mvn clean
+    print_success "Проект очищен"
+}
+
+# Основная логика
+main() {
+    print_header "Rating System v1.0.0"
+    
+    # Проверяем требования
+    check_java
+    check_maven
+    echo ""
+    
+    # Обрабатываем аргументы
+    case "${1:-run}" in
+        clean)
+            clean
+            ;;
+        build)
+            build
+            ;;
+        run)
+            build
+            run
+            ;;
+        *)
+            echo "Использование: $0 [clean|build|run]"
+            echo ""
+            echo "Команды:"
+            echo "  clean  - Очистить проект"
+            echo "  build  - Собрать проект"
+            echo "  run    - Собрать и запустить (по умолчанию)"
+            exit 1
+            ;;
+    esac
+}
+
+# Запуск
+main "$@"

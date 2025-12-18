@@ -1,0 +1,45 @@
+name: Build Cross-Platform Native Apps
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn clean javafx:jlink
+
+    - name: Package (Linux/Mac)
+      if: matrix.os != 'windows-latest'
+      run: |
+        cd target
+        zip -r ../RatingSystem-${{ matrix.os }}.zip rating-system-image/
+
+    - name: Package (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd target
+        Compress-Archive -Path rating-system-image/* -DestinationPath ../RatingSystem-windows-latest.zip
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: RatingSystem-${{ matrix.os }}
+        path: RatingSystem-${{ matrix.os }}.zip

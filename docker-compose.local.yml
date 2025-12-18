@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:15
+    container_name: rating_db_local
+    environment:
+      POSTGRES_DB: rating_system
+      POSTGRES_USER: rating_user
+      POSTGRES_PASSWORD: secure_rating_pass_2025
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: rating_app_local
+    environment:
+      - DISPLAY=host.docker.internal:0
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=rating_system
+      - DB_USER=rating_user
+      - DB_PASSWORD=secure_rating_pass_2025
+    depends_on:
+      - db
+    # Для Linux раскомментируйте строки ниже и закомментируйте DISPLAY выше
+    # network_mode: host
+    # environment:
+    #   - DISPLAY=$DISPLAY
+    # volumes:
+    #   - /tmp/.X11-unix:/tmp/.X11-unix
+
+volumes:
+  postgres_local_data:
