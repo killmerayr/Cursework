@@ -845,6 +845,7 @@ public class MainController {
                 
                 if (existing != null) {
                     Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    styleDialog(confirm);
                     confirm.setTitle("Рейтинг уже существует");
                     confirm.setHeaderText("Студент №" + rating.getStudentNumber() + " уже имеет оценку.");
                     confirm.setContentText("Вы хотите обновить существующую оценку (" + existing.getRating() + ") на новую (" + rating.getRating() + ")?");

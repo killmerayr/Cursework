@@ -22,7 +22,7 @@
                 </Menu>
             </MenuBar>
             <HBox spacing="10.0" style="-fx-padding: 10px; -fx-background-color: -surface-light;">
-                <Label fx:id="userLabel" text="Пользователь:" style="-fx-font-weight: 800; -fx-text-fill: -primary-color; -fx-font-size: 14px;" />
+                <Label fx:id="userLabel" text="Пользователь:" styleClass="user-label" />
             </HBox>
         </VBox>
     </top>
@@ -31,7 +31,7 @@
         <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
             <Tab text="Группы">
                 <VBox spacing="10.0" style="-fx-padding: 10px;">
-                    <Label text="Управление группами:" style="-fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <Label text="Управление группами:" styleClass="section-header" />
                     <HBox spacing="10.0" prefHeight="40.0">
                         <Button fx:id="createGroupBtn" text="➕ Создать группу" onAction="#handleCreateGroup" styleClass="button-primary" style="-fx-min-width: 150;" />
                         <Button fx:id="deleteGroupBtn" text="🗑️ Удалить группу" onAction="#handleDeleteGroup" styleClass="button-danger" style="-fx-min-width: 150;" />
@@ -65,19 +65,19 @@
                     <HBox spacing="10.0" VBox.vgrow="ALWAYS">
                         <!-- Левая панель: Группы -->
                         <VBox spacing="8.0" prefWidth="250.0" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label text="Группы:" style="-fx-font-weight: bold; -fx-font-size: 12px;" />
+                            <Label text="Группы:" styleClass="section-header" style="-fx-font-size: 12px;" />
                             <ListView fx:id="groupListView" prefHeight="450.0" prefWidth="250.0" style="-fx-font-size: 11px;" />
                         </VBox>
                         
                         <!-- Центральная панель: Дисциплины -->
                         <VBox spacing="8.0" prefWidth="270.0" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label text="Дисциплины:" style="-fx-font-weight: bold; -fx-font-size: 12px;" />
+                            <Label text="Дисциплины:" styleClass="section-header" style="-fx-font-size: 12px;" />
                             <ListView fx:id="disciplineListView" prefHeight="450.0" prefWidth="270.0" style="-fx-font-size: 11px;" />
                         </VBox>
                         
                         <!-- Правая панель: Рейтинги студентов -->
                         <VBox spacing="8.0" VBox.vgrow="ALWAYS" style="-fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 4; -fx-padding: 8;">
-                            <Label text="Рейтинги студентов:" style="-fx-font-weight: bold; -fx-font-size: 12px;" />
+                            <Label text="Рейтинги студентов:" styleClass="section-header" style="-fx-font-size: 12px;" />
                             <HBox spacing="8.0" prefHeight="35.0">
                                 <Button fx:id="addRatingBtn" text="➕ Добавить" onAction="#handleAddRating" styleClass="button-primary" style="-fx-min-width: 100;" />
                                 <Button fx:id="editRatingBtn" text="✏️ Редактировать" onAction="#handleEditRating" styleClass="button-secondary" style="-fx-min-width: 120;" />
