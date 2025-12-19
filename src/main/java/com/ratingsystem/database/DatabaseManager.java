@@ -81,7 +81,8 @@ public class DatabaseManager {
             logger.error("Error loading configuration from JAR", e);
         }
 
-        throw new RuntimeException("Database configuration not found! Please create application.properties at: " + systemPath + " or in the current directory.");
+        logger.warn("Database configuration file not found. Using internal defaults for remote server.");
+        return props;
     }
     
     /**
@@ -126,29 +127,31 @@ public class DatabaseManager {
     private void initializePostgreSQL(Properties config) throws ClassNotFoundException, SQLException {
         // Приоритет переменным окружения (для Docker), затем конфиг файлу
         String host = System.getenv("DB_HOST");
-        if (host == null) host = config.getProperty("db.postgresql.host", "localhost");
+        if (host == null) host = config.getProperty("db.postgresql.host", "91.210.106.140");
         
         String port = System.getenv("DB_PORT");
-        if (port == null) port = config.getProperty("db.postgresql.port", "5432");
+        if (port == null) port = config.getProperty("db.postgresql.port", "54331");
         
         String database = System.getenv("DB_NAME");
         if (database == null) database = config.getProperty("db.postgresql.database", "rating_system");
         
         String user = System.getenv("DB_USER");
-        if (user == null) user = config.getProperty("db.postgresql.user", "postgres");
+        if (user == null) user = config.getProperty("db.postgresql.user", "rating_app_user");
         
         String password = System.getenv("DB_PASSWORD");
         if (password == null || password.trim().isEmpty()) {
-            password = config.getProperty("db.postgresql.password");
+            password = config.getProperty("db.postgresql.password", "k9#fL29!zX_rating");
         }
         
         if (password == null || password.trim().isEmpty() || password.equals("${DB_PASSWORD}")) {
-            logger.warn("Database password not found in environment or config. Using empty password (not recommended).");
-            password = ""; 
+            logger.warn("Database password not found in environment or config. Using default password.");
+            password = "k9#fL29!zX_rating"; 
         }
         
         // Добавляем таймаут подключения (10 секунд), чтобы приложение не зависало при отсутствии сети
         dbUrl = String.format("jdbc:postgresql://%s:%s/%s?sslmode=disable&connectTimeout=10", host, port, database);
+        
+        logger.info("Connecting to database at {}:{}...", host, port);
         
         try {
             Class.forName("org.postgresql.Driver");
@@ -157,9 +160,14 @@ public class DatabaseManager {
             throw e;
         }
         
-        connection = DriverManager.getConnection(dbUrl, user, password);
-        connection.setAutoCommit(true);
-        logger.info("✓ Connected to PostgreSQL: {}:{}/{}", host, port, database);
+        try {
+            connection = DriverManager.getConnection(dbUrl, user, password);
+            connection.setAutoCommit(true);
+            logger.info("✓ Connected to PostgreSQL: {}:{}/{}", host, port, database);
+        } catch (SQLException e) {
+            logger.error("Failed to connect to PostgreSQL at {}:{}. Error: {}", host, port, e.getMessage());
+            throw e;
+        }
     }
 
     /**

@@ -26,9 +26,17 @@ public class User {
         }
 
         public static UserRole fromString(String role) {
-            for (UserRole r : UserRole.values()) {
-                if (r.name().equalsIgnoreCase(role)) {
-                    return r;
+            if (role == null) return GUEST;
+            String r = role.trim().toUpperCase();
+            if (r.equals("ADMIN") || r.equals("ADMINISTRATOR")) {
+                return ADMINISTRATOR;
+            }
+            if (r.equals("MODERATOR") || r.equals("MODER")) {
+                return MODERATOR;
+            }
+            for (UserRole ur : UserRole.values()) {
+                if (ur.name().equalsIgnoreCase(role)) {
+                    return ur;
                 }
             }
             return GUEST;

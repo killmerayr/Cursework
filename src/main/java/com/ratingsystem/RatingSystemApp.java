@@ -43,7 +43,14 @@ public class RatingSystemApp extends Application {
             
             // Извлекаем самое глубокое сообщение об ошибке
             Throwable cause = e;
-            while (cause.getCause() != null) cause = cause.getCause();
+            StringBuilder technicalInfo = new StringBuilder();
+            while (cause != null) {
+                technicalInfo.append(cause.getClass().getSimpleName())
+                             .append(": ")
+                             .append(cause.getMessage())
+                             .append("\n");
+                cause = cause.getCause();
+            }
             
             showErrorAndExit("Ошибка инициализации", 
                 "Не удалось подключиться к базе данных.\n\n" +
@@ -51,7 +58,7 @@ public class RatingSystemApp extends Application {
                 "1. База данных не запущена (выполните 'docker-compose up -d')\n" +
                 "2. Неверный пароль (проверьте DB_PASSWORD или application.properties)\n" +
                 "3. Порт 54331 занят другим приложением\n\n" +
-                "Техническая информация:\n" + cause.getMessage());
+                "Техническая информация:\n" + technicalInfo.toString());
         }
     }
 

@@ -201,29 +201,37 @@ public class MainController {
      * Настроить доступ к меню в зависимости от роли пользователя
      */
     private void setupMenuPermissions() {
+        if (currentUser == null) return;
+        
         boolean isAdmin = currentUser.getRole() == User.UserRole.ADMINISTRATOR;
         boolean isModerator = isAdmin || currentUser.getRole() == User.UserRole.MODERATOR;
         
-        createGroupBtn.setDisable(!isModerator);
+        // Группы и дисциплины
+        if (createGroupBtn != null) createGroupBtn.setDisable(!isModerator);
         if (deleteGroupBtn != null) deleteGroupBtn.setDisable(!isModerator);
-        addDisciplineBtn.setDisable(!isModerator);
+        if (addDisciplineBtn != null) addDisciplineBtn.setDisable(!isModerator);
         if (editDisciplineBtn != null) editDisciplineBtn.setDisable(!isModerator);
-        deleteDisciplineBtn.setDisable(!isModerator);
-        addRatingBtn.setDisable(!isModerator);
-        editRatingBtn.setDisable(!isModerator);
-        deleteRatingBtn.setDisable(!isModerator);
+        if (deleteDisciplineBtn != null) deleteDisciplineBtn.setDisable(!isModerator);
+        
+        // Рейтинги
+        if (addRatingBtn != null) addRatingBtn.setDisable(!isModerator);
+        if (editRatingBtn != null) editRatingBtn.setDisable(!isModerator);
+        if (deleteRatingBtn != null) deleteRatingBtn.setDisable(!isModerator);
 
         // Вкладка пользователей доступна только админам и модераторам
         if (usersTab != null) {
             if (!isModerator) {
                 tabPane.getTabs().remove(usersTab);
+            } else if (!tabPane.getTabs().contains(usersTab)) {
+                // Если модератор зашел, а вкладки нет (например, после смены юзера)
+                tabPane.getTabs().add(usersTab);
             }
         }
         
-        if (deleteUserBtn != null) deleteUserBtn.setDisable(!isAdmin); // Удалять юзеров может только админ
-        if (changeRoleBtn != null) changeRoleBtn.setDisable(!isAdmin); // Менять роли может только админ
+        if (deleteUserBtn != null) deleteUserBtn.setDisable(!isAdmin);
+        if (changeRoleBtn != null) changeRoleBtn.setDisable(!isAdmin);
         
-        logger.info("Permissions set for role: {}", currentUser.getRole());
+        logger.info("Permissions updated for user: {} (Role: {})", currentUser.getUsername(), currentUser.getRole());
     }
 
     /**
